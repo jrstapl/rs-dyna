@@ -386,27 +386,424 @@ mod tests {
         assert_eq!(c.values["Field2"], fields[1]);
     }
     #[test]
-    fn test_add_card() {}
+    fn test_add_card_to_card_all_unique() {
+        let values = vec![
+            Field {
+                name: String::from("Field1"),
+                default: String::from("1.0"),
+                help: String::from("Help Field 1"),
+                position: 0,
+                options: vec![],
+                width: 10,
+            },
+            Field {
+                name: String::from("Field2"),
+                default: String::from("2.0"),
+                help: String::from("Help Field2"),
+                position: 10,
+                options: vec![String::from("option1"), String::from("option2")],
+                width: 10,
+            },
+        ];
+
+        let values_2 = vec![
+            Field {
+                name: String::from("Field3"),
+                default: String::from("1.0"),
+                help: String::from("Help Field 1"),
+                position: 0,
+                options: vec![],
+                width: 10,
+            },
+            Field {
+                name: String::from("Field4"),
+                default: String::from("2.0"),
+                help: String::from("Help Field2"),
+                position: 10,
+                options: vec![String::from("option1"), String::from("option2")],
+                width: 10,
+            },
+        ];
+
+        let c1 = Card::new(values.clone());
+        let c2 = Card::new(values_2.clone());
+
+        let c3 = c1 + c2;
+
+        // test values from c1 are present
+        assert_eq!(c3.values["Field1"], values[0]);
+        assert_eq!(c3.values["Field2"], values[1]);
+
+        // test values from c2 are present
+        assert_eq!(c3.values["Field3"], values_2[0]);
+        assert_eq!(c3.values["Field4"], values_2[1]);
+    }
+
     #[test]
-    fn test_new_keyword() {}
+    fn test_add_card_to_card_existing_names() {
+        let values = vec![
+            Field {
+                name: String::from("Field1"),
+                default: String::from("1.0"),
+                help: String::from("Help Field 1"),
+                position: 0,
+                options: vec![],
+                width: 10,
+            },
+            Field {
+                name: String::from("Field2"),
+                default: String::from("2.0"),
+                help: String::from("Help Field2"),
+                position: 10,
+                options: vec![String::from("option1"), String::from("option2")],
+                width: 10,
+            },
+        ];
+
+        let values_2 = vec![
+            Field {
+                name: String::from("Field1"),
+                default: String::from("3.0"),
+                help: String::from("New Field1"),
+                position: 0,
+                options: vec![],
+                width: 10,
+            },
+            Field {
+                name: String::from("Field2"),
+                default: String::from("4.0"),
+                help: String::from("New Field2"),
+                position: 10,
+                options: vec![String::from("option1"), String::from("option2")],
+                width: 10,
+            },
+        ];
+
+        let c1 = Card::new(values.clone());
+        let c2 = Card::new(values_2.clone());
+
+        let c3 = c1 + c2;
+
+        // test values from c1 are present
+        assert_eq!(c3.values["Field1"], values_2[0]);
+        assert_eq!(c3.values["Field2"], values_2[1]);
+    }
     #[test]
-    fn test_empty_keyword() {}
+    fn test_add_field_to_card_new() {
+        let values = vec![
+            Field {
+                name: String::from("Field1"),
+                default: String::from("1.0"),
+                help: String::from("Help Field 1"),
+                position: 0,
+                options: vec![],
+                width: 10,
+            },
+            Field {
+                name: String::from("Field2"),
+                default: String::from("2.0"),
+                help: String::from("Help Field2"),
+                position: 10,
+                options: vec![String::from("option1"), String::from("option2")],
+                width: 10,
+            },
+        ];
+
+        let mut c = Card::new(values.clone());
+
+        let new_field = Field {
+            name: String::from("Field3"),
+            default: String::from("2.0"),
+            help: String::from("Help Field2"),
+            position: 10,
+            options: vec![String::from("option1"), String::from("option2")],
+            width: 10,
+        };
+
+        c = c + new_field.clone();
+
+        assert_eq!(c.values["Field3"], new_field);
+    }
+
+    #[test]
+    fn test_add_field_to_card_existing() {
+        let values = vec![
+            Field {
+                name: String::from("Field1"),
+                default: String::from("1.0"),
+                help: String::from("Help Field 1"),
+                position: 0,
+                options: vec![],
+                width: 10,
+            },
+            Field {
+                name: String::from("Field2"),
+                default: String::from("2.0"),
+                help: String::from("Help Field2"),
+                position: 10,
+                options: vec![String::from("option1"), String::from("option2")],
+                width: 10,
+            },
+        ];
+
+        let mut c = Card::new(values.clone());
+
+        let new_field = Field {
+            name: String::from("Field1"),
+            default: String::from("2.0"),
+            help: String::from("New Field 1"),
+            position: 10,
+            options: vec![String::from("option1"), String::from("option2")],
+            width: 10,
+        };
+
+        c = c + new_field.clone();
+
+        assert_eq!(c.values["Field1"], new_field);
+        assert_ne!(c.values["Field1"], values[0]);
+    }
+    #[test]
+    fn test_new_keyword() {
+        let values = vec![
+            Field {
+                name: String::from("Field1"),
+                default: String::from("1.0"),
+                help: String::from("Help Field 1"),
+                position: 0,
+                options: vec![],
+                width: 10,
+            },
+            Field {
+                name: String::from("Field2"),
+                default: String::from("2.0"),
+                help: String::from("Help Field2"),
+                position: 10,
+                options: vec![String::from("option1"), String::from("option2")],
+                width: 10,
+            },
+        ];
+
+        let values_2 = vec![
+            Field {
+                name: String::from("Field3"),
+                default: String::from("3.0"),
+                help: String::from("help Field3"),
+                position: 0,
+                options: vec![],
+                width: 10,
+            },
+            Field {
+                name: String::from("Field4"),
+                default: String::from("4.0"),
+                help: String::from("help Field4"),
+                position: 10,
+                options: vec![String::from("option1"), String::from("option2")],
+                width: 10,
+            },
+        ];
+
+        let c1 = Card::new(values.clone());
+        let c2 = Card::new(values_2.clone());
+
+        let keyword = String::from("Test Keyword");
+
+        let true_key = KeyWord {
+            keyword: keyword.clone(),
+            cards: vec![c1.clone(), c2.clone()],
+            is_commented: false,
+        };
+
+        let test_keyword = KeyWord {
+            keyword: keyword.clone(),
+            cards: vec![c1.clone(), c2.clone()],
+            is_commented: false,
+        };
+
+        assert_eq!(true_key, test_keyword);
+    }
+    #[test]
+    fn test_empty_keyword() {
+        let test_key = KeyWord::empty_keyword();
+        let empty_key = KeyWord {
+            keyword: String::new(),
+            cards: vec![],
+            is_commented: false,
+        };
+
+        assert_eq!(test_key, empty_key);
+    }
     #[test]
     fn test_add_keyword() {}
+
+    /// for both comment tests, we test twice
+    /// to ensure that the comment/uncommented status
+    /// does not produce an error if you call comment
+    /// on an already commented keyword, as if you want
+    /// to make sure a keyword is commented, there's no reason
+    /// to raise an error
     #[test]
-    fn test_comment_keyword() {}
+    fn test_comment_keyword() {
+        let mut empty_key = KeyWord::empty_keyword();
+
+        empty_key.comment();
+
+        assert!(empty_key.is_commented);
+
+        empty_key.comment();
+        assert!(empty_key.is_commented);
+    }
     #[test]
-    fn test_uncomment_keyword() {}
+    fn test_uncomment_keyword() {
+        let mut empty_key = KeyWord::empty_keyword();
+
+        assert!(!empty_key.is_commented);
+        empty_key.comment();
+        empty_key.uncomment();
+        assert!(!empty_key.is_commented);
+        empty_key.uncomment();
+        assert!(!empty_key.is_commented)
+    }
     #[test]
     fn test_new_deck() {}
     #[test]
     fn test_new_deck_with_prefix() {}
     #[test]
-    fn test_new_blank_deck() {}
+    fn test_new_blank_deck() {
+        let empty_deck = Deck {
+            keywords: vec![],
+            prefix: String::new(),
+        };
+
+        let test_deck = Deck::create_blank_deck();
+
+        assert_eq!(empty_deck, test_deck);
+    }
     #[test]
-    fn test_clear_keywords() {}
+    fn test_clear_keywords() {
+        let values = vec![
+            Field {
+                name: String::from("Field1"),
+                default: String::from("1.0"),
+                help: String::from("Help Field 1"),
+                position: 0,
+                options: vec![],
+                width: 10,
+            },
+            Field {
+                name: String::from("Field2"),
+                default: String::from("2.0"),
+                help: String::from("Help Field2"),
+                position: 10,
+                options: vec![String::from("option1"), String::from("option2")],
+                width: 10,
+            },
+        ];
+
+        let values_2 = vec![
+            Field {
+                name: String::from("Field3"),
+                default: String::from("3.0"),
+                help: String::from("help Field3"),
+                position: 0,
+                options: vec![],
+                width: 10,
+            },
+            Field {
+                name: String::from("Field4"),
+                default: String::from("4.0"),
+                help: String::from("help Field4"),
+                position: 10,
+                options: vec![String::from("option1"), String::from("option2")],
+                width: 10,
+            },
+        ];
+
+        let c1 = Card::new(values.clone());
+        let c2 = Card::new(values_2.clone());
+
+        let key = KeyWord {
+            keyword: String::from("KeyWord"),
+            cards: vec![c1, c2],
+            is_commented: false,
+        };
+
+        let mut test_deck = Deck {
+            keywords: vec![key],
+            prefix: String::new(),
+        };
+
+        let empty_deck = Deck {
+            keywords: vec![],
+            prefix: String::new(),
+        };
+
+        test_deck.clear_keywords();
+
+        assert_eq!(test_deck, empty_deck);
+    }
     #[test]
-    fn test_empty_deck() {}
+    fn test_empty_deck() {
+        let blank_deck = Deck {
+            keywords: vec![],
+            prefix: String::new(),
+        };
+
+        let values = vec![
+            Field {
+                name: String::from("Field1"),
+                default: String::from("1.0"),
+                help: String::from("Help Field 1"),
+                position: 0,
+                options: vec![],
+                width: 10,
+            },
+            Field {
+                name: String::from("Field2"),
+                default: String::from("2.0"),
+                help: String::from("Help Field2"),
+                position: 10,
+                options: vec![String::from("option1"), String::from("option2")],
+                width: 10,
+            },
+        ];
+
+        let values_2 = vec![
+            Field {
+                name: String::from("Field3"),
+                default: String::from("3.0"),
+                help: String::from("help Field3"),
+                position: 0,
+                options: vec![],
+                width: 10,
+            },
+            Field {
+                name: String::from("Field4"),
+                default: String::from("4.0"),
+                help: String::from("help Field4"),
+                position: 10,
+                options: vec![String::from("option1"), String::from("option2")],
+                width: 10,
+            },
+        ];
+
+        let c1 = Card::new(values.clone());
+        let c2 = Card::new(values_2.clone());
+
+        let key = KeyWord {
+            keyword: String::from("KeyWord"),
+            cards: vec![c1, c2],
+            is_commented: false,
+        };
+
+        let mut test_deck = Deck {
+            keywords: vec![key],
+            prefix: String::from("This is a new test"),
+        };
+
+        test_deck.empty();
+
+        assert_eq!(blank_deck, test_deck);
+    }
     #[test]
     fn test_add_keyword_to_deck() {}
     #[test]
