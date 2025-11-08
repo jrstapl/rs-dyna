@@ -7,5 +7,4 @@ edition = "2024"
 env_logger = "0.11.8"
 log = "0.4.28"
 serde_json = "1.0.145"
-
-
+rs-keyfile = { path = "../rs-keyfile" }

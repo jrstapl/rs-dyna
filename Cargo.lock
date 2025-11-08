@@ -212,6 +212,7 @@ version = "0.1.0"
 dependencies = [
  "env_logger",
  "log",
+ "rs-keyfile",
  "serde_json",
 ]
 

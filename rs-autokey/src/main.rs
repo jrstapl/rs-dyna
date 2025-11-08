@@ -1,8 +1,10 @@
 use env_logger::Env;
-use log::{debug, error, info};
-use std::fs;
+use log::{debug, info};
+use std::collections::HashMap;
 
 use serde_json::Value;
+
+use keyfile::Field;
 
 fn main() {
     let env = Env::default()
@@ -15,5 +17,12 @@ fn main() {
 
     let kwd: Value = serde_json::from_str(kwd).unwrap();
 
-    debug!("io: kwd.json deserialized");
+    for (key, value) in kwd {
+        create_struct(key, value);
+    }
+
+    info!("io: kwd.json deserialized");
+    debug!("{kwd}")
 }
+
+fn create_struct(key: String, value: HashMap<String, String>) {}

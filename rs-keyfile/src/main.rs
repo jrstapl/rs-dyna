@@ -1,5 +1,6 @@
-mod keyfile;
-
+use keyfile::Card;
 fn main() {
-    println!("Hello, world!");
+    let mut empty = Card::default();
+    empty.clear();
+    println!("Hello, rs-dyna!");
 }
