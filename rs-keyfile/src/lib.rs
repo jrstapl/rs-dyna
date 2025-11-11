@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use std::fmt;
 use std::ops;
 
+use serde::{Deserialize, Serialize};
+
 #[derive(Debug, Clone)]
 pub struct FieldError;
 
@@ -11,7 +13,7 @@ impl fmt::Display for FieldError {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct Field {
     name: String,
     default: String,

@@ -2,8 +2,6 @@ use env_logger::Env;
 use log::{debug, info};
 use std::collections::HashMap;
 
-use serde_json::Value;
-
 use keyfile::Field;
 
 fn main() {
@@ -13,16 +11,19 @@ fn main() {
 
     env_logger::init_from_env(env);
 
-    let kwd = include_str!("../resources/kwd.json");
+    let kwd = include_str!("../resources/kwd.json").replace("null", "\"\"");
 
-    let kwd: Value = serde_json::from_str(kwd).unwrap();
+    let kwd: HashMap<String, Vec<HashMap<String, Vec<Field>>>> =
+        serde_json::from_str(kwd.as_str()).unwrap();
 
-    for (key, value) in kwd {
-        create_struct(key, value);
-    }
+    let keys: Vec<&String> = kwd.keys().collect();
+
+    // for (key, value) in kwd {
+    //     create_struct(key, value);
+    // }
 
     info!("io: kwd.json deserialized");
-    debug!("{kwd}")
+    debug!("{:?}", keys)
 }
 
-fn create_struct(key: String, value: HashMap<String, String>) {}
+fn raw_string_to_keywords(String) -> HashMap<String,Vec<String>> 
