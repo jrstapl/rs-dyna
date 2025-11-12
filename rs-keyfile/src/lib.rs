@@ -15,13 +15,20 @@ impl fmt::Display for FieldError {
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct Field {
-    name: String,
-    default: String,
-    help: String,
-    position: i8,
+    #[serde(default)]
+    name: Option<String>,
+    #[serde(default)]
+    default: Option<String>,
+    #[serde(default)]
+    help: Option<String>,
+    #[serde(default)]
+    position: Option<i16>,
+    #[serde(default)]
     options: Option<Vec<String>>,
+    #[serde(default)]
     r#type: Option<String>,
-    width: i8,
+    #[serde(default)]
+    width: Option<i16>,
 }
 
 impl Field {
@@ -30,32 +37,32 @@ impl Field {
     }
     pub fn default() -> Field {
         Field {
-            name: String::new(),
-            default: String::new(),
-            help: String::new(),
-            position: 0,
+            name: Some(String::new()),
+            default: Some(String::new()),
+            help: Some(String::new()),
+            position: Some(0),
             options: Some(Vec::new()),
             r#type: Some(String::from("integer")),
-            width: 10,
+            width: Some(10),
         }
     }
     pub fn build(
         name: String,
         default: String,
         help: String,
-        position: i8,
+        position: i16,
         options: Vec<String>,
         r#type: String,
-        width: i8,
+        width: i16,
     ) -> Result<Field, FieldError> {
         Ok(Field {
-            name: name,
-            default: default,
-            help: help,
-            position: position,
+            name: Some(name),
+            default: Some(default),
+            help: Some(help),
+            position: Some(position),
             options: Some(options),
             r#type: Some(r#type),
-            width: width,
+            width: Some(width),
         })
     }
 
@@ -88,8 +95,10 @@ impl fmt::Display for CardError {
 
 impl Card {
     pub fn new(fields: Vec<Field>) -> Card {
-        let values: HashMap<String, Field> =
-            fields.into_iter().map(|f| (f.name.clone(), f)).collect();
+        let values: HashMap<String, Field> = fields
+            .into_iter()
+            .map(|f| (f.name.clone().unwrap(), f))
+            .collect();
 
         Card { values: values }
     }
@@ -117,7 +126,7 @@ impl ops::Add<Card> for Card {
 impl ops::Add<Field> for Card {
     type Output = Card;
     fn add(mut self, _rhs: Field) -> Card {
-        self.values.insert(_rhs.name.clone(), _rhs);
+        self.values.insert(_rhs.name.clone().unwrap(), _rhs);
         Card {
             values: self.values,
         }
@@ -237,21 +246,21 @@ mod tests {
         // new and default
         let f2 = Field::new();
 
-        assert_eq!(String::new(), f.name);
-        assert_eq!(String::new(), f.default);
-        assert_eq!(String::new(), f.help);
-        assert_eq!(0, f.position);
+        assert_eq!(Some(String::new()), f.name);
+        assert_eq!(Some(String::new()), f.default);
+        assert_eq!(Some(String::new()), f.help);
+        assert_eq!(Some(0), f.position);
         assert_eq!(Some(vec_str.clone()), f.options);
         assert_eq!(Some(String::from("integer")), f.r#type);
-        assert_eq!(10, f.width);
+        assert_eq!(Some(10), f.width);
 
-        assert_eq!(String::new(), f2.name);
-        assert_eq!(String::new(), f2.default);
-        assert_eq!(String::new(), f2.help);
-        assert_eq!(0, f2.position);
+        assert_eq!(Some(String::new()), f2.name);
+        assert_eq!(Some(String::new()), f2.default);
+        assert_eq!(Some(String::new()), f2.help);
+        assert_eq!(Some(0), f2.position);
         assert_eq!(Some(vec_str.clone()), f2.options);
         assert_eq!(Some(String::from("integer")), f2.r#type);
-        assert_eq!(10, f2.width);
+        assert_eq!(Some(10), f2.width);
 
         assert_eq!(f2.name, f.name);
         assert_eq!(f2.default, f.default);
@@ -284,13 +293,13 @@ mod tests {
             Err(e) => panic!("Unable to build field {e}!! "),
         };
 
-        assert_eq!(f_name, f.name);
-        assert_eq!(f_default, f.default);
-        assert_eq!(f_help, f.help);
-        assert_eq!(f_position, f.position);
+        assert_eq!(Some(f_name), f.name);
+        assert_eq!(Some(f_default), f.default);
+        assert_eq!(Some(f_help), f.help);
+        assert_eq!(Some(f_position), f.position);
         assert_eq!(f_options, f.options.unwrap());
         assert_eq!(f_type, f.r#type.unwrap());
-        assert_eq!(f_width, f.width);
+        assert_eq!(Some(f_width), f.width);
     }
     #[test]
     fn test_clear_field() {
@@ -380,22 +389,22 @@ mod tests {
     fn test_clear_card() {
         let fields = vec![
             Field {
-                name: String::from("Field1"),
-                default: String::from("1.0"),
-                help: String::from("Help Field 1"),
-                position: 0,
+                name: Some(String::from("Field1")),
+                default: Some(String::from("1.0")),
+                help: Some(String::from("Help Field 1")),
+                position: Some(0),
                 options: Some(vec![]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
             Field {
-                name: String::from("Field2"),
-                default: String::from("2.0"),
-                help: String::from("Help Field2"),
-                position: 10,
+                name: Some(String::from("Field2")),
+                default: Some(String::from("2.0")),
+                help: Some(String::from("Help Field2")),
+                position: Some(10),
                 options: Some(vec![String::from("option1"), String::from("option2")]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
         ];
 
@@ -408,43 +417,43 @@ mod tests {
     fn test_add_card_to_card_all_unique() {
         let values = vec![
             Field {
-                name: String::from("Field1"),
-                default: String::from("1.0"),
-                help: String::from("Help Field 1"),
-                position: 0,
+                name: Some(String::from("Field1")),
+                default: Some(String::from("1.0")),
+                help: Some(String::from("Help Field 1")),
+                position: Some(0),
                 options: Some(vec![]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
             Field {
-                name: String::from("Field2"),
-                default: String::from("2.0"),
-                help: String::from("Help Field2"),
-                position: 10,
+                name: Some(String::from("Field2")),
+                default: Some(String::from("2.0")),
+                help: Some(String::from("Help Field2")),
+                position: Some(10),
                 options: Some(vec![String::from("option1"), String::from("option2")]),
                 r#type: Some(String::from("integer")),
-                width: 10,
+                width: Some(10),
             },
         ];
 
         let values_2 = vec![
             Field {
-                name: String::from("Field3"),
-                default: String::from("1.0"),
-                help: String::from("Help Field 1"),
-                position: 0,
+                name: Some(String::from("Field3")),
+                default: Some(String::from("1.0")),
+                help: Some(String::from("Help Field 1")),
+                position: Some(0),
                 options: Some(vec![]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
             Field {
-                name: String::from("Field4"),
-                default: String::from("2.0"),
-                help: String::from("Help Field2"),
-                position: 10,
+                name: Some(String::from("Field4")),
+                default: Some(String::from("2.0")),
+                help: Some(String::from("Help Field2")),
+                position: Some(10),
                 options: Some(vec![String::from("option1"), String::from("option2")]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
         ];
 
@@ -466,43 +475,43 @@ mod tests {
     fn test_add_card_to_card_existing_names() {
         let values = vec![
             Field {
-                name: String::from("Field1"),
-                default: String::from("1.0"),
-                help: String::from("Help Field 1"),
-                position: 0,
+                name: Some(String::from("Field1")),
+                default: Some(String::from("1.0")),
+                help: Some(String::from("Help Field 1")),
+                position: Some(0),
                 options: Some(vec![]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
             Field {
-                name: String::from("Field2"),
-                default: String::from("2.0"),
-                help: String::from("Help Field2"),
-                position: 10,
+                name: Some(String::from("Field2")),
+                default: Some(String::from("2.0")),
+                help: Some(String::from("Help Field2")),
+                position: Some(10),
                 options: Some(vec![String::from("option1"), String::from("option2")]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
         ];
 
         let values_2 = vec![
             Field {
-                name: String::from("Field1"),
-                default: String::from("3.0"),
-                help: String::from("New Field1"),
-                position: 0,
+                name: Some(String::from("Field1")),
+                default: Some(String::from("3.0")),
+                help: Some(String::from("New Field1")),
+                position: Some(0),
                 options: Some(vec![]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
             Field {
-                name: String::from("Field2"),
-                default: String::from("4.0"),
-                help: String::from("New Field2"),
-                position: 10,
+                name: Some(String::from("Field2")),
+                default: Some(String::from("4.0")),
+                help: Some(String::from("New Field2")),
+                position: Some(10),
                 options: Some(vec![String::from("option1"), String::from("option2")]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
         ];
 
@@ -519,35 +528,35 @@ mod tests {
     fn test_add_field_to_card_new() {
         let values = vec![
             Field {
-                name: String::from("Field1"),
-                default: String::from("1.0"),
-                help: String::from("Help Field 1"),
-                position: 0,
+                name: Some(String::from("Field1")),
+                default: Some(String::from("1.0")),
+                help: Some(String::from("Help Field 1")),
+                position: Some(0),
                 options: Some(vec![]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
             Field {
-                name: String::from("Field2"),
-                default: String::from("2.0"),
-                help: String::from("Help Field2"),
-                position: 10,
+                name: Some(String::from("Field2")),
+                default: Some(String::from("2.0")),
+                help: Some(String::from("Help Field2")),
+                position: Some(10),
                 options: Some(vec![String::from("option1"), String::from("option2")]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
         ];
 
         let mut c = Card::new(values.clone());
 
         let new_field = Field {
-            name: String::from("Field3"),
-            default: String::from("2.0"),
-            help: String::from("Help Field2"),
-            position: 10,
+            name: Some(String::from("Field3")),
+            default: Some(String::from("2.0")),
+            help: Some(String::from("Help Field2")),
+            position: Some(10),
             options: Some(vec![String::from("option1"), String::from("option2")]),
             r#type: Some(String::new()),
-            width: 10,
+            width: Some(10),
         };
 
         c = c + new_field.clone();
@@ -559,35 +568,35 @@ mod tests {
     fn test_add_field_to_card_existing() {
         let values = vec![
             Field {
-                name: String::from("Field1"),
-                default: String::from("1.0"),
-                help: String::from("Help Field 1"),
-                position: 0,
+                name: Some(String::from("Field1")),
+                default: Some(String::from("1.0")),
+                help: Some(String::from("Help Field 1")),
+                position: Some(0),
                 options: Some(vec![]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
             Field {
-                name: String::from("Field2"),
-                default: String::from("2.0"),
-                help: String::from("Help Field2"),
-                position: 10,
+                name: Some(String::from("Field2")),
+                default: Some(String::from("2.0")),
+                help: Some(String::from("Help Field2")),
+                position: Some(10),
                 options: Some(vec![String::from("option1"), String::from("option2")]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
         ];
 
         let mut c = Card::new(values.clone());
 
         let new_field = Field {
-            name: String::from("Field1"),
-            default: String::from("2.0"),
-            help: String::from("New Field 1"),
-            position: 10,
+            name: Some(String::from("Field1")),
+            default: Some(String::from("2.0")),
+            help: Some(String::from("New Field 1")),
+            position: Some(10),
             options: Some(vec![String::from("option1"), String::from("option2")]),
             r#type: Some(String::new()),
-            width: 10,
+            width: Some(10),
         };
 
         c = c + new_field.clone();
@@ -599,43 +608,43 @@ mod tests {
     fn test_new_keyword() {
         let values = vec![
             Field {
-                name: String::from("Field1"),
-                default: String::from("1.0"),
-                help: String::from("Help Field 1"),
-                position: 0,
+                name: Some(String::from("Field1")),
+                default: Some(String::from("1.0")),
+                help: Some(String::from("Help Field 1")),
+                position: Some(0),
                 options: Some(vec![]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
             Field {
-                name: String::from("Field2"),
-                default: String::from("2.0"),
-                help: String::from("Help Field2"),
-                position: 10,
+                name: Some(String::from("Field2")),
+                default: Some(String::from("2.0")),
+                help: Some(String::from("Help Field2")),
+                position: Some(10),
                 options: Some(vec![String::from("option1"), String::from("option2")]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
         ];
 
         let values_2 = vec![
             Field {
-                name: String::from("Field3"),
-                default: String::from("3.0"),
-                help: String::from("help Field3"),
-                position: 0,
+                name: Some(String::from("Field3")),
+                default: Some(String::from("3.0")),
+                help: Some(String::from("help Field3")),
+                position: Some(0),
                 options: Some(vec![]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
             Field {
-                name: String::from("Field4"),
-                default: String::from("4.0"),
-                help: String::from("help Field4"),
-                position: 10,
+                name: Some(String::from("Field4")),
+                default: Some(String::from("4.0")),
+                help: Some(String::from("help Field4")),
+                position: Some(10),
                 options: Some(vec![String::from("option1"), String::from("option2")]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
         ];
 
@@ -719,43 +728,43 @@ mod tests {
     fn test_clear_keywords() {
         let values = vec![
             Field {
-                name: String::from("Field1"),
-                default: String::from("1.0"),
-                help: String::from("Help Field 1"),
-                position: 0,
+                name: Some(String::from("Field1")),
+                default: Some(String::from("1.0")),
+                help: Some(String::from("Help Field 1")),
+                position: Some(0),
                 options: Some(vec![]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
             Field {
-                name: String::from("Field2"),
-                default: String::from("2.0"),
-                help: String::from("Help Field2"),
-                position: 10,
+                name: Some(String::from("Field2")),
+                default: Some(String::from("2.0")),
+                help: Some(String::from("Help Field2")),
+                position: Some(10),
                 options: Some(vec![String::from("option1"), String::from("option2")]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
         ];
 
         let values_2 = vec![
             Field {
-                name: String::from("Field3"),
-                default: String::from("3.0"),
-                help: String::from("help Field3"),
-                position: 0,
+                name: Some(String::from("Field3")),
+                default: Some(String::from("3.0")),
+                help: Some(String::from("help Field3")),
+                position: Some(0),
                 options: Some(vec![]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
             Field {
-                name: String::from("Field4"),
-                default: String::from("4.0"),
-                help: String::from("help Field4"),
-                position: 10,
+                name: Some(String::from("Field4")),
+                default: Some(String::from("4.0")),
+                help: Some(String::from("help Field4")),
+                position: Some(10),
                 options: Some(vec![String::from("option1"), String::from("option2")]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
         ];
 
@@ -791,43 +800,43 @@ mod tests {
 
         let values = vec![
             Field {
-                name: String::from("Field1"),
-                default: String::from("1.0"),
-                help: String::from("Help Field 1"),
-                position: 0,
+                name: Some(String::from("Field1")),
+                default: Some(String::from("1.0")),
+                help: Some(String::from("Help Field 1")),
+                position: Some(0),
                 options: Some(vec![]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
             Field {
-                name: String::from("Field2"),
-                default: String::from("2.0"),
-                help: String::from("Help Field2"),
-                position: 10,
+                name: Some(String::from("Field2")),
+                default: Some(String::from("2.0")),
+                help: Some(String::from("Help Field2")),
+                position: Some(10),
                 options: Some(vec![String::from("option1"), String::from("option2")]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
         ];
 
         let values_2 = vec![
             Field {
-                name: String::from("Field3"),
-                default: String::from("3.0"),
-                help: String::from("help Field3"),
-                position: 0,
+                name: Some(String::from("Field3")),
+                default: Some(String::from("3.0")),
+                help: Some(String::from("help Field3")),
+                position: Some(0),
                 options: Some(vec![]),
                 r#type: Some(String::new()),
-                width: 10,
+                width: Some(10),
             },
             Field {
-                name: String::from("Field4"),
-                default: String::from("4.0"),
-                help: String::from("help Field4"),
-                position: 10,
+                name: Some(String::from("Field4")),
+                default: Some(String::from("4.0")),
+                help: Some(String::from("help Field4")),
+                position: Some(10),
                 options: Some(vec![String::from("option1"), String::from("option2")]),
                 r#type: Some(String::from("integer")),
-                width: 10,
+                width: Some(10),
             },
         ];
 

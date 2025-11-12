@@ -11,10 +11,10 @@ fn main() {
 
     env_logger::init_from_env(env);
 
-    let kwd = include_str!("../resources/kwd.json").replace("null", "\"\"");
+    let kwd = include_str!("../resources/kwd.json");
 
-    let kwd: HashMap<String, Vec<HashMap<String, Vec<Field>>>> =
-        serde_json::from_str(kwd.as_str()).unwrap();
+    let kwd =
+        serde_json::from_str::<HashMap<String, Vec<HashMap<String, Vec<Field>>>>>(kwd).unwrap();
 
     let keys: Vec<&String> = kwd.keys().collect();
 
