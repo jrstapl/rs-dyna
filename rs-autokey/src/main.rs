@@ -18,10 +18,18 @@ fn main() {
 
     let keys: Vec<&String> = kwd.keys().collect();
 
-    // for (key, value) in kwd {
-    //     create_struct(key, value);
-    // }
-
     info!("io: kwd.json deserialized");
     debug!("{:?}", keys);
+
+    for (key, value) in kwd.into_iter() {
+        create_keyword_struct(&key, &value)
+            .expect(format!("Unable to create keyword card for {}", key).as_str());
+    }
+}
+
+fn create_keyword_struct(
+    keyword: &str,
+    data: &Vec<HashMap<String, Vec<Field>>>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    Ok(())
 }
