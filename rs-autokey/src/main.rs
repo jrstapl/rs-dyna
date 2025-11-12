@@ -25,5 +25,3 @@ fn main() {
     info!("io: kwd.json deserialized");
     debug!("{:?}", keys)
 }
-
-fn raw_string_to_keywords(String) -> HashMap<String,Vec<String>> 

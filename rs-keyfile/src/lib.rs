@@ -19,7 +19,8 @@ pub struct Field {
     default: String,
     help: String,
     position: i8,
-    options: Vec<String>,
+    options: Option<Vec<String>>,
+    r#type: Option<String>,
     width: i8,
 }
 
@@ -33,7 +34,8 @@ impl Field {
             default: String::new(),
             help: String::new(),
             position: 0,
-            options: Vec::new(),
+            options: Some(Vec::new()),
+            r#type: Some(String::from("integer")),
             width: 10,
         }
     }
@@ -43,6 +45,7 @@ impl Field {
         help: String,
         position: i8,
         options: Vec<String>,
+        r#type: String,
         width: i8,
     ) -> Result<Field, FieldError> {
         Ok(Field {
@@ -50,7 +53,8 @@ impl Field {
             default: default,
             help: help,
             position: position,
-            options: options,
+            options: Some(options),
+            r#type: Some(r#type),
             width: width,
         })
     }
@@ -237,14 +241,16 @@ mod tests {
         assert_eq!(String::new(), f.default);
         assert_eq!(String::new(), f.help);
         assert_eq!(0, f.position);
-        assert_eq!(vec_str, f.options);
+        assert_eq!(Some(vec_str.clone()), f.options);
+        assert_eq!(Some(String::from("integer")), f.r#type);
         assert_eq!(10, f.width);
 
         assert_eq!(String::new(), f2.name);
         assert_eq!(String::new(), f2.default);
         assert_eq!(String::new(), f2.help);
         assert_eq!(0, f2.position);
-        assert_eq!(vec_str, f2.options);
+        assert_eq!(Some(vec_str.clone()), f2.options);
+        assert_eq!(Some(String::from("integer")), f2.r#type);
         assert_eq!(10, f2.width);
 
         assert_eq!(f2.name, f.name);
@@ -252,6 +258,7 @@ mod tests {
         assert_eq!(f2.help, f.help);
         assert_eq!(f2.position, f.position);
         assert_eq!(f2.options, f.options);
+        assert_eq!(f2.r#type, f.r#type);
         assert_eq!(f2.width, f.width);
     }
     #[test]
@@ -262,6 +269,7 @@ mod tests {
         let f_position = 0;
         let f_options: Vec<String> = Vec::new();
         let f_width = 10;
+        let f_type = String::from("integer");
 
         let f = match Field::build(
             f_name.clone(),
@@ -269,6 +277,7 @@ mod tests {
             f_help.clone(),
             f_position.clone(),
             f_options.clone(),
+            f_type.clone(),
             f_width.clone(),
         ) {
             Ok(f) => f,
@@ -279,7 +288,8 @@ mod tests {
         assert_eq!(f_default, f.default);
         assert_eq!(f_help, f.help);
         assert_eq!(f_position, f.position);
-        assert_eq!(f_options, f.options);
+        assert_eq!(f_options, f.options.unwrap());
+        assert_eq!(f_type, f.r#type.unwrap());
         assert_eq!(f_width, f.width);
     }
     #[test]
@@ -290,8 +300,11 @@ mod tests {
         let f_position = 0;
         let f_options: Vec<String> = Vec::new();
         let f_width = 10;
+        let f_type = String::from("integer");
 
-        let mut f = match Field::build(f_name, f_default, f_help, f_position, f_options, f_width) {
+        let mut f = match Field::build(
+            f_name, f_default, f_help, f_position, f_options, f_type, f_width,
+        ) {
             Ok(f) => f,
             Err(e) => panic!("Unable to build Field ({e})!!"),
         };
@@ -315,6 +328,7 @@ mod tests {
             String::from("This is a test"),
             20,
             vec![],
+            String::from("integer"),
             10,
         ) {
             Ok(f) => f,
@@ -347,6 +361,7 @@ mod tests {
             String::from("This is the help"),
             30,
             custom_opts,
+            String::from("integer"),
             10,
         ) {
             Ok(f) => f,
@@ -369,7 +384,8 @@ mod tests {
                 default: String::from("1.0"),
                 help: String::from("Help Field 1"),
                 position: 0,
-                options: vec![],
+                options: Some(vec![]),
+                r#type: Some(String::new()),
                 width: 10,
             },
             Field {
@@ -377,7 +393,8 @@ mod tests {
                 default: String::from("2.0"),
                 help: String::from("Help Field2"),
                 position: 10,
-                options: vec![String::from("option1"), String::from("option2")],
+                options: Some(vec![String::from("option1"), String::from("option2")]),
+                r#type: Some(String::new()),
                 width: 10,
             },
         ];
@@ -395,7 +412,8 @@ mod tests {
                 default: String::from("1.0"),
                 help: String::from("Help Field 1"),
                 position: 0,
-                options: vec![],
+                options: Some(vec![]),
+                r#type: Some(String::new()),
                 width: 10,
             },
             Field {
@@ -403,7 +421,8 @@ mod tests {
                 default: String::from("2.0"),
                 help: String::from("Help Field2"),
                 position: 10,
-                options: vec![String::from("option1"), String::from("option2")],
+                options: Some(vec![String::from("option1"), String::from("option2")]),
+                r#type: Some(String::from("integer")),
                 width: 10,
             },
         ];
@@ -414,7 +433,8 @@ mod tests {
                 default: String::from("1.0"),
                 help: String::from("Help Field 1"),
                 position: 0,
-                options: vec![],
+                options: Some(vec![]),
+                r#type: Some(String::new()),
                 width: 10,
             },
             Field {
@@ -422,7 +442,8 @@ mod tests {
                 default: String::from("2.0"),
                 help: String::from("Help Field2"),
                 position: 10,
-                options: vec![String::from("option1"), String::from("option2")],
+                options: Some(vec![String::from("option1"), String::from("option2")]),
+                r#type: Some(String::new()),
                 width: 10,
             },
         ];
@@ -449,7 +470,8 @@ mod tests {
                 default: String::from("1.0"),
                 help: String::from("Help Field 1"),
                 position: 0,
-                options: vec![],
+                options: Some(vec![]),
+                r#type: Some(String::new()),
                 width: 10,
             },
             Field {
@@ -457,7 +479,8 @@ mod tests {
                 default: String::from("2.0"),
                 help: String::from("Help Field2"),
                 position: 10,
-                options: vec![String::from("option1"), String::from("option2")],
+                options: Some(vec![String::from("option1"), String::from("option2")]),
+                r#type: Some(String::new()),
                 width: 10,
             },
         ];
@@ -468,7 +491,8 @@ mod tests {
                 default: String::from("3.0"),
                 help: String::from("New Field1"),
                 position: 0,
-                options: vec![],
+                options: Some(vec![]),
+                r#type: Some(String::new()),
                 width: 10,
             },
             Field {
@@ -476,7 +500,8 @@ mod tests {
                 default: String::from("4.0"),
                 help: String::from("New Field2"),
                 position: 10,
-                options: vec![String::from("option1"), String::from("option2")],
+                options: Some(vec![String::from("option1"), String::from("option2")]),
+                r#type: Some(String::new()),
                 width: 10,
             },
         ];
@@ -498,7 +523,8 @@ mod tests {
                 default: String::from("1.0"),
                 help: String::from("Help Field 1"),
                 position: 0,
-                options: vec![],
+                options: Some(vec![]),
+                r#type: Some(String::new()),
                 width: 10,
             },
             Field {
@@ -506,7 +532,8 @@ mod tests {
                 default: String::from("2.0"),
                 help: String::from("Help Field2"),
                 position: 10,
-                options: vec![String::from("option1"), String::from("option2")],
+                options: Some(vec![String::from("option1"), String::from("option2")]),
+                r#type: Some(String::new()),
                 width: 10,
             },
         ];
@@ -518,7 +545,8 @@ mod tests {
             default: String::from("2.0"),
             help: String::from("Help Field2"),
             position: 10,
-            options: vec![String::from("option1"), String::from("option2")],
+            options: Some(vec![String::from("option1"), String::from("option2")]),
+            r#type: Some(String::new()),
             width: 10,
         };
 
@@ -535,7 +563,8 @@ mod tests {
                 default: String::from("1.0"),
                 help: String::from("Help Field 1"),
                 position: 0,
-                options: vec![],
+                options: Some(vec![]),
+                r#type: Some(String::new()),
                 width: 10,
             },
             Field {
@@ -543,7 +572,8 @@ mod tests {
                 default: String::from("2.0"),
                 help: String::from("Help Field2"),
                 position: 10,
-                options: vec![String::from("option1"), String::from("option2")],
+                options: Some(vec![String::from("option1"), String::from("option2")]),
+                r#type: Some(String::new()),
                 width: 10,
             },
         ];
@@ -555,7 +585,8 @@ mod tests {
             default: String::from("2.0"),
             help: String::from("New Field 1"),
             position: 10,
-            options: vec![String::from("option1"), String::from("option2")],
+            options: Some(vec![String::from("option1"), String::from("option2")]),
+            r#type: Some(String::new()),
             width: 10,
         };
 
@@ -572,7 +603,8 @@ mod tests {
                 default: String::from("1.0"),
                 help: String::from("Help Field 1"),
                 position: 0,
-                options: vec![],
+                options: Some(vec![]),
+                r#type: Some(String::new()),
                 width: 10,
             },
             Field {
@@ -580,7 +612,8 @@ mod tests {
                 default: String::from("2.0"),
                 help: String::from("Help Field2"),
                 position: 10,
-                options: vec![String::from("option1"), String::from("option2")],
+                options: Some(vec![String::from("option1"), String::from("option2")]),
+                r#type: Some(String::new()),
                 width: 10,
             },
         ];
@@ -591,7 +624,8 @@ mod tests {
                 default: String::from("3.0"),
                 help: String::from("help Field3"),
                 position: 0,
-                options: vec![],
+                options: Some(vec![]),
+                r#type: Some(String::new()),
                 width: 10,
             },
             Field {
@@ -599,7 +633,8 @@ mod tests {
                 default: String::from("4.0"),
                 help: String::from("help Field4"),
                 position: 10,
-                options: vec![String::from("option1"), String::from("option2")],
+                options: Some(vec![String::from("option1"), String::from("option2")]),
+                r#type: Some(String::new()),
                 width: 10,
             },
         ];
@@ -688,7 +723,8 @@ mod tests {
                 default: String::from("1.0"),
                 help: String::from("Help Field 1"),
                 position: 0,
-                options: vec![],
+                options: Some(vec![]),
+                r#type: Some(String::new()),
                 width: 10,
             },
             Field {
@@ -696,7 +732,8 @@ mod tests {
                 default: String::from("2.0"),
                 help: String::from("Help Field2"),
                 position: 10,
-                options: vec![String::from("option1"), String::from("option2")],
+                options: Some(vec![String::from("option1"), String::from("option2")]),
+                r#type: Some(String::new()),
                 width: 10,
             },
         ];
@@ -707,7 +744,8 @@ mod tests {
                 default: String::from("3.0"),
                 help: String::from("help Field3"),
                 position: 0,
-                options: vec![],
+                options: Some(vec![]),
+                r#type: Some(String::new()),
                 width: 10,
             },
             Field {
@@ -715,7 +753,8 @@ mod tests {
                 default: String::from("4.0"),
                 help: String::from("help Field4"),
                 position: 10,
-                options: vec![String::from("option1"), String::from("option2")],
+                options: Some(vec![String::from("option1"), String::from("option2")]),
+                r#type: Some(String::new()),
                 width: 10,
             },
         ];
@@ -756,7 +795,8 @@ mod tests {
                 default: String::from("1.0"),
                 help: String::from("Help Field 1"),
                 position: 0,
-                options: vec![],
+                options: Some(vec![]),
+                r#type: Some(String::new()),
                 width: 10,
             },
             Field {
@@ -764,7 +804,8 @@ mod tests {
                 default: String::from("2.0"),
                 help: String::from("Help Field2"),
                 position: 10,
-                options: vec![String::from("option1"), String::from("option2")],
+                options: Some(vec![String::from("option1"), String::from("option2")]),
+                r#type: Some(String::new()),
                 width: 10,
             },
         ];
@@ -775,7 +816,8 @@ mod tests {
                 default: String::from("3.0"),
                 help: String::from("help Field3"),
                 position: 0,
-                options: vec![],
+                options: Some(vec![]),
+                r#type: Some(String::new()),
                 width: 10,
             },
             Field {
@@ -783,7 +825,8 @@ mod tests {
                 default: String::from("4.0"),
                 help: String::from("help Field4"),
                 position: 10,
-                options: vec![String::from("option1"), String::from("option2")],
+                options: Some(vec![String::from("option1"), String::from("option2")]),
+                r#type: Some(String::from("integer")),
                 width: 10,
             },
         ];
