@@ -80,7 +80,7 @@ impl Field {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct Card {
     values: HashMap<String, Field>,
 }

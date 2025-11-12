@@ -23,5 +23,5 @@ fn main() {
     // }
 
     info!("io: kwd.json deserialized");
-    debug!("{:?}", keys)
+    debug!("{:?}", keys);
 }
